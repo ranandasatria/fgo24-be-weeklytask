@@ -11,6 +11,9 @@ CREATE TABLE users (
   profile_picture VARCHAR(250)
 );
 
+ALTER TABLE users
+ALTER COLUMN password TYPE VARCHAR(250);
+
 CREATE TABLE sessions (
   id_session SERIAL PRIMARY KEY,
   id_user INT REFERENCES users(id_user),
