@@ -51,3 +51,8 @@ CREATE TABLE transfers (
   deleted_at TIMESTAMP
 );
 
+
+INSERT INTO wallets (id_user, balance) VALUES (1, 0);
+
+INSERT INTO payment_methods (payment_method)
+VALUES ('BCA'), ('Gopay'), ('QRIS');
