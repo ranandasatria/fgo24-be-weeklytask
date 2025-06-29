@@ -4,7 +4,10 @@ import (
 	"context"
 	"ewallet_be/utils"
 	"fmt"
+	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type Wallet struct {
@@ -24,14 +27,22 @@ type Topup struct {
 }
 
 type Transfer struct {
-	IDTransfer      int       `json:"idtransfer" db:"id_transfer"`
-	IDSenderWallet  int       `json:"idsenderwallet" db:"id_sender_wallet"`
-	IDReceiverWallet int      `json:"idreceiverwallet" db:"id_receiver_wallet"`
-	Amount          float64   `json:"amount"`
-	Notes           string    `json:"notes"`
-	CreatedAt       time.Time `json:"createdat" db:"created_at"`
+	IDTransfer       int       `json:"idtransfer" db:"id_transfer"`
+	IDSenderWallet   int       `json:"idsenderwallet" db:"id_sender_wallet"`
+	IDReceiverWallet int       `json:"idreceiverwallet" db:"id_receiver_wallet"`
+	Amount           float64   `json:"amount"`
+	Notes            string    `json:"notes"`
+	CreatedAt        time.Time `json:"createdat" db:"created_at"`
 }
 
+type TransferHistoryItem struct {
+	ProfilePicture string    `json:"profile_picture"`
+	Username       string    `json:"username"`
+	Phone          string    `json:"phone"`
+	Amount         float64   `json:"amount"`
+	IsIncoming     bool      `json:"is_incoming"`
+	CreatedAt      time.Time `json:"created_at"`
+}
 
 func CreateTopup(topup Topup) error {
 	conn, err := utils.ConnectDB()
@@ -60,7 +71,6 @@ func CreateTopup(topup Topup) error {
 
 	return nil
 }
-
 
 func CreateTransfer(t Transfer) error {
 	conn, err := utils.ConnectDB()
@@ -113,4 +123,49 @@ func CreateTransfer(t Transfer) error {
 	}
 
 	return tx.Commit(context.Background())
+}
+
+func GetTransferHistory(idUser int, keyword string) ([]TransferHistoryItem, error) {
+	conn, err := utils.ConnectDB()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	var rows pgx.Rows
+
+	query := `
+		SELECT 
+			u.profile_picture, u.username, u.phone, t.amount,
+			(t.id_receiver_wallet = w.id_wallet) as is_incoming,
+			t.created_at
+		FROM transfers t
+		JOIN wallets w ON w.id_wallet = t.id_sender_wallet OR w.id_wallet = t.id_receiver_wallet
+		JOIN users u ON (CASE 
+			WHEN w.id_wallet = t.id_sender_wallet THEN t.id_receiver_wallet
+			ELSE t.id_sender_wallet
+		END) = (SELECT id_wallet FROM wallets WHERE id_user = u.id_user)
+		WHERE w.id_user = $1
+	`
+
+	args := []any{idUser}
+
+	if keyword != "" {
+		query += " AND (u.username ILIKE $2 OR u.phone ILIKE $2)"
+		args = append(args, "%"+strings.ToLower(keyword)+"%")
+	}
+
+	query += " ORDER BY t.created_at DESC"
+
+	rows, err = conn.Query(context.Background(), query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query history: %v", err)
+	}
+
+	histories, err := pgx.CollectRows(rows, pgx.RowToStructByName[TransferHistoryItem])
+	if err != nil {
+		return nil, err
+	}
+
+	return histories, nil
 }

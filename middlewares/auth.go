@@ -1,47 +1,50 @@
 package middlewares
 
 import (
-	"ewallet_be/utils"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
 func VerifyToken() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		godotenv.Load()
-		secretKey := os.Getenv("APP_SECRET")
-		token := strings.Split(ctx.GetHeader("Authorization"), "Bearer ")
-
-		if len(token) < 2 {
-			ctx.JSON(http.StatusUnauthorized, utils.Response{
-				Success: false,
-				Message: "Unauthorized",
-			})
-			ctx.AbortWithStatus(http.StatusUnauthorized)
+		authHeader := ctx.GetHeader("Authorization")
+		if authHeader == "" {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"message": "Missing Authorization header"})
+			ctx.Abort()
 			return
 		}
-		rawToken, err := jwt.Parse(token[1], func(t *jwt.Token) (interface{}, error) {
-			return []byte(secretKey), nil
+
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("APP_SECRET")), nil
 		})
 
-		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, utils.Response{
-				Success: false,
-				Message: "Invalid token",
-			})
-			ctx.AbortWithStatus(http.StatusUnauthorized)
+		if err != nil || !token.Valid {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid token"})
+			ctx.Abort()
 			return
 		}
 
-		userId := rawToken.Claims.(jwt.MapClaims)["userId"]
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid token claims"})
+			ctx.Abort()
+			return
+		}
 
-		ctx.Set("userID", userId)
+		userIdFloat, ok := claims["userId"].(float64)
+		if !ok {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"message": "userId not found in token"})
+			ctx.Abort()
+			return
+		}
+
+		ctx.Set("userId", int(userIdFloat))
 		ctx.Next()
-
 	}
 }
