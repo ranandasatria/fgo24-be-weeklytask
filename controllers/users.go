@@ -71,6 +71,14 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
+	if form.PIN != user.PIN {
+		ctx.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Wrong PIN",
+		})
+		return
+	}
+
 	generateToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId": user.ID,
 		"iat":    time.Now().Unix(),
