@@ -2,15 +2,26 @@ package utils
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 func ConnectDB() (*pgxpool.Conn, error) {
-	connectionString := "postgres://postgres:1@localhost:5433/ewallet"
+	godotenv.Load()
 
-	pool, err := pgxpool.New(context.Background(), connectionString)
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s",
+		os.Getenv("PGUSER"),
+		os.Getenv("PGPASSWORD"),
+		os.Getenv("PGHOST"),
+		os.Getenv("PGPORT"),
+		os.Getenv("PGDATABASE"),
+	)
 
+	pool, err := pgxpool.New(context.Background(), connStr)
 	if err != nil {
 		return nil, err
 	}

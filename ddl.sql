@@ -50,3 +50,4 @@ CREATE TABLE transfers (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP
 );
+
