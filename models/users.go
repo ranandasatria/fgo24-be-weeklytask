@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"ewallet_be/utils"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -35,29 +36,50 @@ func Register(user User) error {
 }
 
 func FindOneUserByEmail(email string) (User, error) {
-  conn, err := utils.ConnectDB()
-  if err != nil {
-    return User{}, err
-  }
-  defer conn.Release()
+	conn, err := utils.ConnectDB()
+	if err != nil {
+		return User{}, err
+	}
+	defer conn.Release()
 
-  rows, err := conn.Query(
-    context.Background(),
-    `
+	rows, err := conn.Query(
+		context.Background(),
+		`
     SELECT id_user, email, password, pin, username, phone, profile_picture
     FROM users
     WHERE email = $1
     `,
-    email,
-  )
-  if err != nil {
-    return User{}, err
-  }
+		email,
+	)
+	if err != nil {
+		return User{}, err
+	}
 
-  user, err := pgx.CollectOneRow[User](rows, pgx.RowToStructByName)
-  if err != nil {
-    return User{}, err
-  }
+	user, err := pgx.CollectOneRow[User](rows, pgx.RowToStructByName)
+	if err != nil {
+		return User{}, err
+	}
 
-  return user, nil
+	return user, nil
+}
+
+func EditUser(id int, user User) error {
+	conn, err := utils.ConnectDB()
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	result, err := conn.Exec(
+		context.Background(),
+		`UPDATE users SET email = $1, password = $2, username = $3, phone = $4, profile_picture = $5 WHERE id_user = $6`,
+		user.Email, user.Password, user.Username, user.Phone, user.ProfilePicture, id,
+	)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("user not found")
+	}
+	return nil
 }
