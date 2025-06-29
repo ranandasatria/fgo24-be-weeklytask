@@ -52,7 +52,7 @@ CREATE TABLE transfers (
 );
 
 
-INSERT INTO wallets (id_user, balance) VALUES (1, 0);
+INSERT INTO wallets (id_user, balance) VALUES (13, 10000);
 
 INSERT INTO payment_methods (payment_method)
 VALUES ('BCA'), ('Gopay'), ('QRIS');

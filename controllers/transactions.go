@@ -35,3 +35,32 @@ func Topup(ctx *gin.Context) {
 		Results: topup,
 	})
 }
+
+
+func Transfer(ctx *gin.Context) {
+	var transfer models.Transfer
+
+	if err := ctx.ShouldBind(&transfer); err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Invalid input",
+			Errors:  err.Error(),
+		})
+		return
+	}
+
+	if err := models.CreateTransfer(transfer); err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Transfer failed",
+			Errors:  err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Transfer successful",
+		Results: transfer,
+	})
+}

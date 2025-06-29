@@ -7,4 +7,5 @@ func CombineRouter(r *gin.Engine) {
 	loginRouter(r.Group("/login"))
 	editProfileRouter(r.Group("/profile"))
 	topupRouter(r.Group("/topup"))
+	transferRouter(r.Group("/transfer"))
 }
