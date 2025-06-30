@@ -91,3 +91,33 @@ func TransferHistory(ctx *gin.Context) {
 		Results: data,
 	})
 }
+
+func ListUsersForTransfer(ctx *gin.Context) {
+	userIdRaw, exists := ctx.Get("userId")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false, 
+			Message: "Unauthorized",
+		})
+		return
+	}
+
+	idUser := userIdRaw.(int)
+	keyword := ctx.Query("keyword")
+
+	users, err := models.GetOtherUsers(idUser, keyword)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to fetch users",
+			Errors:  err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "User list fetched",
+		Results: users,
+	})
+}

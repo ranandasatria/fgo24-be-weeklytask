@@ -18,6 +18,14 @@ type User struct {
 	ProfilePicture string `json:"profilepicture" db:"profile_picture"`
 }
 
+
+type UserListItem struct {
+	IDUser         int    `json:"iduser" db:"id_user"`
+	Username       string `json:"username"`
+	Phone          *string `json:"phone"`
+	ProfilePicture *string `json:"profilepicture" db:"profile_picture"`
+}
+
 func Register(user User) error {
 	conn, err := utils.ConnectDB()
 	if err != nil {
@@ -82,4 +90,38 @@ func EditUser(id int, user User) error {
 		return fmt.Errorf("user not found")
 	}
 	return nil
+}
+
+func GetOtherUsers(idUser int, keyword string) ([]UserListItem, error) {
+	conn, err := utils.ConnectDB()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	query := `
+		SELECT id_user, username, phone, profile_picture
+		FROM users
+		WHERE id_user != $1
+	`
+	args := []any{idUser}
+
+	if keyword != "" {
+		query += " AND (username ILIKE $2 OR phone ILIKE $2)"
+		args = append(args, "%"+keyword+"%")
+	}
+
+	query += " ORDER BY username ASC"
+
+	rows, err := conn.Query(context.Background(), query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	users, err := pgx.CollectRows(rows, pgx.RowToStructByName[UserListItem])
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
