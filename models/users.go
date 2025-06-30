@@ -25,21 +25,28 @@ type UserListItem struct {
 	ProfilePicture *string `json:"profilePicture" db:"profile_picture"`
 }
 
-func Register(user User) error {
+func Register(user User) (int, error) {
 	conn, err := utils.ConnectDB()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer conn.Release()
-	_, err = conn.Exec(
+
+	var userID int
+	err = conn.QueryRow(
 		context.Background(),
 		`
-	INSERT INTO users (email, password, pin, username, phone, profile_picture)
-	VALUES ($1, $2, $3, $4, $5, $6)
-	`,
+    INSERT INTO users (email, password, pin, username, phone, profile_picture)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id_user
+    `,
 		user.Email, user.Password, user.PIN, user.Username, user.Phone, user.ProfilePicture,
-	)
-	return err
+	).Scan(&userID)
+
+	if err != nil {
+		return 0, err
+	}
+	return userID, nil
 }
 
 func FindOneUserByEmail(email string) (User, error) {

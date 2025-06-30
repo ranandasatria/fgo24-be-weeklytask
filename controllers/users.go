@@ -23,19 +23,27 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	if err := models.Register(user); err != nil {
+	userID, err := models.Register(user)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.Response{
-			Success: true,
+			Success: false,
 			Message: "Failed to create user",
 		})
 		return
 	}
-
 	ctx.JSON(http.StatusCreated, utils.Response{
 		Success: true,
 		Message: "User created",
 		Results: user,
 	})
+
+	if err := models.CreateWalletForUser(userID); err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "User created but failed to create wallet",
+		})
+		return
+	}
 }
 
 func Login(ctx *gin.Context) {
