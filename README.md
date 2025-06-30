@@ -117,6 +117,7 @@ go run main.go
 | POST   | `/login`             | Login and get JWT token            | No            |
 | PATCH  | `/profile`           | Edit profile                       | Yes           |
 | GET    | `/users`             | View or search user to transfer    | Yes           |
+| GET    | `/wallet`            | View wallet balance                | Yes           |
 | POST   | `/topup`             | Top up wallet balance              | Yes           |
 | GET    | `/transfer`          | View or search transfer history    | Yes           |
 | POST   | `/transfer`          | Transfer balance to another user   | Yes           |
