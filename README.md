@@ -115,11 +115,11 @@ go run main.go
 |--------|----------------------|------------------------------------|---------------|
 | POST   | `/register`          | Register a new user                | No            |
 | POST   | `/login`             | Login and get JWT token            | No            |
-| PATCH  | `/profile/:id`       | Edit profile by user ID            | Yes           |
+| PATCH  | `/profile`           | Edit profile                       | Yes           |
+| GET    | `/users`             | View or search user to transfer    | Yes           |
 | POST   | `/topup`             | Top up wallet balance              | Yes           |
+| GET    | `/transfer`          | View or search transfer history    | Yes           |
 | POST   | `/transfer`          | Transfer balance to another user   | Yes           |
-| GET    | `/transfer`          | View or search user to transfer    | Yes           |
-| GET    | `/transfer/history`  | View or search transfer history    | Yes           |
 
 ## 📄 License
 
