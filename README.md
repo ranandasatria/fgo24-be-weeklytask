@@ -28,7 +28,6 @@ A simple digital wallet RESTful API built with Go (Gin), PostgreSQL, and JWT aut
 erDiagram
 direction LR
 
-  users ||--o{ sessions : creates
   users ||--|| wallets : owns
   wallets ||--o{ topups : has
   topups }o--|| payment_methods : uses
@@ -45,11 +44,6 @@ direction LR
         string profile_picture
     }
 
-  sessions {
-      int id_session PK
-      int id_user FK
-      date issued_at 
-  }
 
   wallets {
       int id_wallet PK
@@ -124,6 +118,7 @@ go run main.go
 | PATCH  | `/profile/:id`       | Edit profile by user ID            | Yes           |
 | POST   | `/topup`             | Top up wallet balance              | Yes           |
 | POST   | `/transfer`          | Transfer balance to another user   | Yes           |
+| GET    | `/transfer`          | View or search user to transfer    | Yes           |
 | GET    | `/transfer/history`  | View or search transfer history    | Yes           |
 
 ## 📄 License
