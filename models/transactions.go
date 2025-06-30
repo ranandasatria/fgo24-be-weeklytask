@@ -10,11 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type Wallet struct {
-	IDWallet int     `json:"idWallet" db:"id_wallet"`
-	IDUser   int     `json:"idUser" db:"id_user"`
-	Balance  float64 `json:"balance"`
-}
+
 
 type Topup struct {
 	IDTopup         int       `json:"idTopup" db:"id_topup"`
