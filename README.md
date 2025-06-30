@@ -1,3 +1,29 @@
+# Go E-Wallet API
+
+A simple digital wallet RESTful API built with Go (Gin), PostgreSQL, and JWT authentication. This project includes features like user registration, login, profile editing, wallet top-up, peer-to-peer wallet transfer, and viewing transfer history with search functionality. It follows a modular structure using the pgx PostgreSQL driver and middleware for token verification.
+
+## Features
+
+✅ User Registration & Login
+
+✅ JWT-based Authentication
+
+✅ Profile Update
+
+✅ Top-Up Wallet
+
+✅ Wallet-to-Wallet Transfer
+
+✅ Transfer History with Search (by name or phone)
+
+✅ Modular Project Structure
+
+✅ PostgreSQL Integration (using pgx)
+
+
+## Entity Relationship Diagram
+
+
 ```mermaid
 erDiagram
 direction LR
@@ -56,8 +82,54 @@ direction LR
     date deleted_at
   }
 
-
-
-
-
 ```
+
+## How to Clone and Use
+
+Make sure you have Golang installed on your device.
+
+#### 1. Clone the repository
+```
+git clone https://github.com/ranandasatria/fgo24-be-weeklytask.git
+```
+
+#### 2. Navigate into the project directory
+```
+cd fgo24-be-weeklytask
+```
+
+#### 3. Install the dependencies
+```
+go mod tidy
+```
+
+#### 4. Setup .env 
+Create a .env file in the root folder with the following variables:
+```
+APP_SECRET=your_jwt_secret_key
+DATABASE_URL=postgres://username:password@localhost:5433/ewallet
+```
+
+#### 5. Run the program
+```
+go run main.go
+```
+
+## 📫 API Endpoints
+
+| Method | Endpoint             | Description                        | Auth Required |
+|--------|----------------------|------------------------------------|---------------|
+| POST   | `/register`          | Register a new user                | No            |
+| POST   | `/login`             | Login and get JWT token            | No            |
+| PATCH  | `/profile/:id`       | Edit profile by user ID            | Yes           |
+| POST   | `/topup`             | Top up wallet balance              | Yes           |
+| POST   | `/transfer`          | Transfer balance to another user   | Yes           |
+| GET    | `/transfer/history`  | View or search transfer history    | Yes           |
+
+## 📄 License
+
+This project is licensed under the **MIT License**.  
+
+## ©️ Copyright
+
+&copy; 2025 Kodacademy
