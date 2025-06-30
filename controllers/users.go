@@ -5,7 +5,6 @@ import (
 	"ewallet_be/utils"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +31,7 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, utils.Response{
+	ctx.JSON(http.StatusCreated, utils.Response{
 		Success: true,
 		Message: "User created",
 		Results: user,
@@ -97,10 +96,9 @@ func Login(ctx *gin.Context) {
 }
 
 func EditUser(ctx *gin.Context) {
-	var user models.User
-	id := ctx.Param("id")
+	var input models.User
 
-	if err := ctx.ShouldBindJSON(&user); err != nil {
+	if err := ctx.ShouldBindJSON(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response{
 			Success: false,
 			Message: "Invalid input",
@@ -108,16 +106,46 @@ func EditUser(ctx *gin.Context) {
 		return
 	}
 
-	userID, _ := strconv.Atoi(id)
-	if err := models.EditUser(userID, user); err != nil {
-		if err.Error() == "user not found" {
-			ctx.JSON(http.StatusNotFound, utils.Response{
-				Success: false,
-				Message: "User ID not found",
-			})
-			return
-		}
+	userIdRaw, exists := ctx.Get("userId")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
 
+	userID := userIdRaw.(int)
+
+	oldUser, err := models.FindOneUserByID(userID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, utils.Response{
+			Success: false,
+			Message: "User not found",
+		})
+		return
+	}
+
+	if input.Email == "" {
+		input.Email = oldUser.Email
+	}
+	if input.Password == "" {
+		input.Password = oldUser.Password
+	}
+	if input.PIN == "" {
+		input.PIN = oldUser.PIN
+	}
+	if input.Username == "" {
+		input.Username = oldUser.Username
+	}
+	if input.Phone == "" {
+		input.Phone = oldUser.Phone
+	}
+	if input.ProfilePicture == "" {
+		input.ProfilePicture = oldUser.ProfilePicture
+	}
+
+	if err := models.EditUser(userID, input); err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Failed to update user",
@@ -128,6 +156,6 @@ func EditUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, utils.Response{
 		Success: true,
 		Message: "User updated",
-		Results: user,
+		Results: input,
 	})
 }

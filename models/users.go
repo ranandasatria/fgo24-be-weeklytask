@@ -70,6 +70,34 @@ func FindOneUserByEmail(email string) (User, error) {
 	return user, nil
 }
 
+func FindOneUserByID(id int) (User, error) {
+  conn, err := utils.ConnectDB()
+  if err != nil {
+    return User{}, err
+  }
+  defer conn.Release()
+
+  rows, err := conn.Query(
+    context.Background(),
+    `
+    SELECT id_user, email, password, pin, username, phone, profile_picture
+    FROM users
+    WHERE id_user = $1
+    `, id,
+  )
+  if err != nil {
+    return User{}, err
+  }
+
+  user, err := pgx.CollectOneRow[User](rows, pgx.RowToStructByName)
+  if err != nil {
+    return User{}, err
+  }
+
+  return user, nil
+}
+
+
 func EditUser(id int, user User) error {
 	conn, err := utils.ConnectDB()
 	if err != nil {

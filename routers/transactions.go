@@ -15,6 +15,5 @@ func topupRouter(r *gin.RouterGroup) {
 func transferRouter(r *gin.RouterGroup) {
 	r.Use(middlewares.VerifyToken())
 	r.POST("", controllers.Transfer)
-	r.GET("/history", controllers.TransferHistory)
-	r.GET("", controllers.ListUsersForTransfer)
+	r.GET("", controllers.TransferHistory)
 }

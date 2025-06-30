@@ -9,5 +9,10 @@ import (
 
 func editProfileRouter(r *gin.RouterGroup){
 	r.Use(middlewares.VerifyToken())
-	r.PATCH(":id", controllers.EditUser)
+	r.PATCH("", controllers.EditUser)
+}
+
+func listUsers(r *gin.RouterGroup){
+	r.Use(middlewares.VerifyToken())
+	r.GET("", controllers.ListUsersForTransfer)
 }
