@@ -56,3 +56,12 @@ INSERT INTO wallets (id_user, balance) VALUES (13, 10000);
 
 INSERT INTO payment_methods (payment_method)
 VALUES ('BCA'), ('Gopay'), ('QRIS');
+
+ALTER TABLE users
+ALTER COLUMN password TYPE VARCHAR(255);
+
+
+ALTER TABLE users
+ALTER COLUMN pin TYPE VARCHAR(255);
+
+select * from users;
