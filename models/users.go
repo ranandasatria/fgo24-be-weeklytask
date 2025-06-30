@@ -9,21 +9,20 @@ import (
 )
 
 type User struct {
-	ID             int    `json:"iduser" db:"id_user"`
+	ID             int    `json:"idUser" db:"id_user"`
 	Email          string `json:"email"`
 	Password       string `json:"password"`
 	PIN            string `json:"pin"`
 	Username       string `json:"username"`
 	Phone          string `json:"phone"`
-	ProfilePicture string `json:"profilepicture" db:"profile_picture"`
+	ProfilePicture string `json:"profilePicture" db:"profile_picture"`
 }
 
-
 type UserListItem struct {
-	IDUser         int    `json:"iduser" db:"id_user"`
-	Username       string `json:"username"`
+	IDUser         int     `json:"idUser" db:"id_user"`
+	Username       string  `json:"username"`
 	Phone          *string `json:"phone"`
-	ProfilePicture *string `json:"profilepicture" db:"profile_picture"`
+	ProfilePicture *string `json:"profilePicture" db:"profile_picture"`
 }
 
 func Register(user User) error {

@@ -11,37 +11,37 @@ import (
 )
 
 type Wallet struct {
-	IDWallet int     `json:"idwallet" db:"id_wallet"`
-	IDUser   int     `json:"iduser" db:"id_user"`
+	IDWallet int     `json:"idWallet" db:"id_wallet"`
+	IDUser   int     `json:"idUser" db:"id_user"`
 	Balance  float64 `json:"balance"`
 }
 
 type Topup struct {
-	IDTopup         int       `json:"idtopup" db:"id_topup"`
-	IDWallet        int       `json:"idwallet" db:"id_wallet"`
+	IDTopup         int       `json:"idTopup" db:"id_topup"`
+	IDWallet        int       `json:"idWallet" db:"id_wallet"`
 	Amount          float64   `json:"amount"`
-	IDPaymentMethod int       `json:"idpaymentmethod" db:"id_payment_method"`
-	AdminFee        float64   `json:"adminfee" db:"admin_fee"`
+	IDPaymentMethod int       `json:"idPaymentMethod" db:"id_payment_method"`
+	AdminFee        float64   `json:"adminFee" db:"admin_fee"`
 	Tax             float64   `json:"tax"`
-	CreatedAt       time.Time `json:"createdat" db:"created_at"`
+	CreatedAt       time.Time `json:"createdAt" db:"created_at"`
 }
 
 type Transfer struct {
-	IDTransfer       int       `json:"idtransfer" db:"id_transfer"`
-	IDSenderWallet   int       `json:"idsenderwallet" db:"id_sender_wallet"`
-	IDReceiverWallet int       `json:"idreceiverwallet" db:"id_receiver_wallet"`
+	IDTransfer       int       `json:"idTransfer" db:"id_transfer"`
+	IDSenderWallet   int       `json:"idSenderWallet" db:"id_sender_wallet"`
+	IDReceiverWallet int       `json:"idReceiverWallet" db:"id_receiver_wallet"`
 	Amount           float64   `json:"amount"`
 	Notes            string    `json:"notes"`
-	CreatedAt        time.Time `json:"createdat" db:"created_at"`
+	CreatedAt        time.Time `json:"createdAt" db:"created_at"`
 }
 
 type TransferHistoryItem struct {
-	ProfilePicture string    `json:"profile_picture"`
+	ProfilePicture string    `json:"profilePicture" db:"profile_picture"`
 	Username       string    `json:"username"`
 	Phone          string    `json:"phone"`
 	Amount         float64   `json:"amount"`
-	IsIncoming     bool      `json:"is_incoming"`
-	CreatedAt      time.Time `json:"created_at"`
+	IsIncoming     bool      `json:"isIncoming" db:"is_incoming"`
+	CreatedAt      time.Time `json:"createdAt" db:"created_at"`
 }
 
 func CreateTopup(topup Topup) error {
