@@ -13,10 +13,25 @@
 				{
 					"name": "REGISTER",
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"koil@mail.com\",\r\n  \"password\": \"123456\",\r\n  \"pin\" : \"123456\",\r\n  \"username\": \"koil\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": ""
+							"raw": "{{url}}/register",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"register"
+							]
 						}
 					},
 					"response": []
@@ -28,7 +43,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"rananda@mail.com\",\r\n  \"password\": \"123456\"\r\n}",
+							"raw": "{\r\n  \"email\": \"koil@mail.com\",\r\n  \"password\": \"123456\",\r\n  \"pin\": \"123456\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -42,33 +57,6 @@
 							],
 							"path": [
 								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "EDIT PROFILE",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"nandaedit@mail.com\",\r\n  \"password\": \"123456\",\r\n  \"pin\": \"123456\",\r\n  \"username\": \"nanda\",\r\n  \"phone\": \"123456\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}/profile/1",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"profile",
-								"1"
 							]
 						}
 					},
@@ -87,7 +75,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{vault:authorization-secret}}",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTEzMzg0MDksImlhdCI6MTc1MTI1MjAwOSwidXNlcklkIjoxM30.SI5ms0o33xRt5TTL0fVlCS2L5HSPb_bwlJgCWneOjhg",
 									"type": "string"
 								}
 							]
@@ -96,7 +84,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"idwallet\": 2,\r\n  \"amount\": 430000,\r\n  \"idpaymentmethod\": 1,\r\n  \"adminfee\": 2000,\r\n  \"tax\": 1000\r\n}",
+							"raw": "{\r\n  \"idwallet\": 5,\r\n  \"amount\": 730000,\r\n  \"idpaymentmethod\": 1,\r\n  \"adminfee\": 2000,\r\n  \"tax\": 1000\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -132,7 +120,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"idsenderwallet\": 1,\r\n  \"idreceiverwallet\": 2,\r\n  \"amount\": 40000,\r\n  \"notes\": \"bayar hutang\"\r\n}\r\n",
+							"raw": "{\r\n  \"idsenderwallet\": 5,\r\n  \"idreceiverwallet\": 4,\r\n  \"amount\": 38000,\r\n  \"notes\": \"gajian\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -174,19 +162,157 @@
 							"raw": "{\r\n  \"idsenderwallet\": 2,\r\n  \"idreceiverwallet\": 1,\r\n  \"amount\": 50000,\r\n  \"notes\": \"bayar hutang\"\r\n}\r\n"
 						},
 						"url": {
-							"raw": "{{url}}/transfer/history?keyword=nanda",
+							"raw": "{{url}}/transfer",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
-								"transfer",
-								"history"
-							],
-							"query": [
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "USERS",
+			"item": [
+				{
+					"name": "GET LIST USER",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
 								{
-									"key": "keyword",
-									"value": "nanda"
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
 								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idsenderwallet\": 2,\r\n  \"idreceiverwallet\": 1,\r\n  \"amount\": 50000,\r\n  \"notes\": \"bayar hutang\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{url}}/users",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDIT PROFILE",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"koilbaru@mail.com\",\r\n  \"password\": \"123456\",\r\n  \"username\": \"koilbaru\",\r\n  \"pin\": \"654321\",\r\n  \"phone\": \"0083213\",\r\n  \"profile_picture\": \"masuk ga ya\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/profile",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPLOAD PICTURE",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTEzNzg0MTgsImlhdCI6MTc1MTI5MjAxOCwidXNlcklkIjoxOH0.rzt89X_0pntWJFYwAnH4bkUbu7zHYlXYDnEG4TwZt_8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/ranan/OneDrive/Desktop/EgOLF0ZWkAYfRLm.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/profile/picture",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"profile",
+								"picture"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "WALLET",
+			"item": [
+				{
+					"name": "GET WALLET",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTEzNzg0MTgsImlhdCI6MTc1MTI5MjAxOCwidXNlcklkIjoxOH0.rzt89X_0pntWJFYwAnH4bkUbu7zHYlXYDnEG4TwZt_8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/wallet",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"wallet"
 							]
 						}
 					},

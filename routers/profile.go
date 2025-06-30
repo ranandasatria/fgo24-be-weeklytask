@@ -7,12 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func editProfileRouter(r *gin.RouterGroup){
+func editProfileRouter(r *gin.RouterGroup) {
 	r.Use(middlewares.VerifyToken())
 	r.PATCH("", controllers.EditUser)
+	r.POST("/picture", controllers.UploadProfilePicture)
 }
 
-func listUsers(r *gin.RouterGroup){
+func listUsers(r *gin.RouterGroup) {
 	r.Use(middlewares.VerifyToken())
 	r.GET("", controllers.ListUsersForTransfer)
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+
 func main() {
 	r := gin.Default()
 
@@ -17,6 +18,8 @@ func main() {
 		ctx.JSON(http.StatusOK, gin.H{"Message": "Backend is running"})
 	})
 
+	r.Static("/uploads", "./uploads")
+	
 	routers.CombineRouter(r)
 	
 	godotenv.Load()

@@ -32,15 +32,27 @@ func Register(user User) (int, error) {
 	}
 	defer conn.Release()
 
+	hashedPassword, err := utils.HashString(user.Password)
+	if err != nil {
+		return 0, err
+	}
+	hashedPIN, err := utils.HashString(user.PIN)
+	if err != nil {
+		return 0, err
+	}
+
+	user.Password = hashedPassword
+	user.PIN = hashedPIN
+
 	var userID int
 	err = conn.QueryRow(
 		context.Background(),
 		`
-    INSERT INTO users (email, password, pin, username, phone, profile_picture)
-    VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING id_user
-    `,
-		user.Email, user.Password, user.PIN, user.Username, user.Phone, user.ProfilePicture,
+		INSERT INTO users (email, password, pin, username, phone, profile_picture)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id_user
+		`,
+		user.Email, hashedPassword, hashedPIN, user.Username, user.Phone, user.ProfilePicture,
 	).Scan(&userID)
 
 	if err != nil {
@@ -78,32 +90,31 @@ func FindOneUserByEmail(email string) (User, error) {
 }
 
 func FindOneUserByID(id int) (User, error) {
-  conn, err := utils.ConnectDB()
-  if err != nil {
-    return User{}, err
-  }
-  defer conn.Release()
+	conn, err := utils.ConnectDB()
+	if err != nil {
+		return User{}, err
+	}
+	defer conn.Release()
 
-  rows, err := conn.Query(
-    context.Background(),
-    `
+	rows, err := conn.Query(
+		context.Background(),
+		`
     SELECT id_user, email, password, pin, username, phone, profile_picture
     FROM users
     WHERE id_user = $1
     `, id,
-  )
-  if err != nil {
-    return User{}, err
-  }
+	)
+	if err != nil {
+		return User{}, err
+	}
 
-  user, err := pgx.CollectOneRow[User](rows, pgx.RowToStructByName)
-  if err != nil {
-    return User{}, err
-  }
+	user, err := pgx.CollectOneRow[User](rows, pgx.RowToStructByName)
+	if err != nil {
+		return User{}, err
+	}
 
-  return user, nil
+	return user, nil
 }
-
 
 func EditUser(id int, user User) error {
 	conn, err := utils.ConnectDB()
@@ -158,4 +169,19 @@ func GetOtherUsers(idUser int, keyword string) ([]UserListItem, error) {
 	}
 
 	return users, nil
+}
+
+func UpdateUserProfilePicture(id int, filename string) error {
+	conn, err := utils.ConnectDB()
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	_, err = conn.Exec(
+		context.Background(),
+		`UPDATE users SET profile_picture = $1 WHERE id_user = $2`,
+		filename, id,
+	)
+	return err
 }

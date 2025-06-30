@@ -3,6 +3,8 @@ package controllers
 import (
 	"ewallet_be/models"
 	"ewallet_be/utils"
+	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -15,7 +17,7 @@ import (
 func Register(ctx *gin.Context) {
 	var user models.User
 
-	if err := ctx.ShouldBind(&user); err != nil {
+	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response{
 			Success: false,
 			Message: "Invalid input",
@@ -25,12 +27,17 @@ func Register(ctx *gin.Context) {
 
 	userID, err := models.Register(user)
 	if err != nil {
+		log.Println("register error:", err)
 		ctx.JSON(http.StatusInternalServerError, utils.Response{
 			Success: false,
 			Message: "Failed to create user",
 		})
 		return
 	}
+
+	user.Password = ""
+	user.PIN = ""
+
 	ctx.JSON(http.StatusCreated, utils.Response{
 		Success: true,
 		Message: "User created",
@@ -56,7 +63,7 @@ func Login(ctx *gin.Context) {
 		PIN      string `json:"pin" binding:"required"`
 	}{}
 
-	if err := ctx.ShouldBind(&form); err != nil {
+	if err := ctx.ShouldBindJSON(&form); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response{
 			Success: false,
 			Message: "Invalid input",
@@ -65,12 +72,7 @@ func Login(ctx *gin.Context) {
 	}
 
 	user, err := models.FindOneUserByEmail(form.Email)
-
 	if err != nil {
-		//handle
-	}
-
-	if user == (models.User{}) || (form.Password != user.Password) {
 		ctx.JSON(http.StatusUnauthorized, utils.Response{
 			Success: false,
 			Message: "Wrong email or password",
@@ -78,7 +80,15 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	if form.PIN != user.PIN {
+	if err := utils.CompareHash(user.Password, form.Password); err != nil {
+		ctx.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Wrong email or password",
+		})
+		return
+	}
+
+	if err := utils.CompareHash(user.PIN, form.PIN); err != nil {
 		ctx.JSON(http.StatusUnauthorized, utils.Response{
 			Success: false,
 			Message: "Wrong PIN",
@@ -165,5 +175,61 @@ func EditUser(ctx *gin.Context) {
 		Success: true,
 		Message: "User updated",
 		Results: input,
+	})
+}
+
+func UploadProfilePicture(ctx *gin.Context) {
+	userIdRaw, exists := ctx.Get("userId")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, utils.Response{
+			Success: false,
+			Message: "Unauthorized",
+		})
+		return
+	}
+	userID := userIdRaw.(int)
+
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "Upload failed",
+			Errors:   err.Error(), 
+		})
+		return
+	}
+
+	if file.Size > 2*1024*1024 {
+		ctx.JSON(http.StatusBadRequest, utils.Response{
+			Success: false,
+			Message: "File is too large",
+		})
+		return
+	}
+
+	filename := fmt.Sprintf("user_%d_%s", userID, file.Filename)
+	filepath := "./uploads/" + filename
+
+	if err := ctx.SaveUploadedFile(file, filepath); err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to save file",
+		})
+		return
+	}
+	
+	err = models.UpdateUserProfilePicture(userID, filename)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.Response{
+			Success: false,
+			Message: "Failed to update user profile",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, utils.Response{
+		Success: true,
+		Message: "Profile picture updated",
+		Results: gin.H{"profilePicture": filename},
 	})
 }
