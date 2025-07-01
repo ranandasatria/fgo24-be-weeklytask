@@ -1,4 +1,4 @@
--- Active: 1750753580331@@127.0.0.1@5433@ewallet
+-- Active: 1751364923444@@127.0.0.1@5433@ewallet
 CREATE DATABASE ewallet;
 
 CREATE TABLE users (
