@@ -1,9 +1,12 @@
 package controllers
 
 import (
+	"context"
+	"encoding/json"
 	"ewallet_be/models"
 	"ewallet_be/utils"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,7 +38,6 @@ func Topup(ctx *gin.Context) {
 		Results: topup,
 	})
 }
-
 
 func Transfer(ctx *gin.Context) {
 	var transfer models.Transfer
@@ -93,10 +95,32 @@ func TransferHistory(ctx *gin.Context) {
 }
 
 func ListUsersForTransfer(ctx *gin.Context) {
+	err := utils.RedisClient().Ping(context.Background()).Err()
+	noredis := false
+	if err != nil && strings.Contains(err.Error(), "refused") {
+		noredis = true
+	}
+
+	if !noredis {
+		result := utils.RedisClient().Exists(context.Background(), ctx.Request.RequestURI)
+		if result.Val() != 0 {
+			users := []models.UserListItem{}
+			data := utils.RedisClient().Get(context.Background(), ctx.Request.RequestURI)
+			if err := json.Unmarshal([]byte(data.Val()), &users); err == nil {
+				ctx.JSON(http.StatusOK, utils.Response{
+					Success: true,
+					Message: "List users (from Redis)",
+					Results: users,
+				})
+			}
+		}
+	}
+
+
 	userIdRaw, exists := ctx.Get("userId")
 	if !exists {
 		ctx.JSON(http.StatusUnauthorized, utils.Response{
-			Success: false, 
+			Success: false,
 			Message: "Unauthorized",
 		})
 		return
@@ -113,6 +137,13 @@ func ListUsersForTransfer(ctx *gin.Context) {
 			Errors:  err.Error(),
 		})
 		return
+	}
+
+	if !noredis {
+		encoded, err := json.Marshal(users)
+		if err == nil {
+			utils.RedisClient().Set(context.Background(), ctx.Request.RequestURI, string(encoded), 0)
+		}
 	}
 
 	ctx.JSON(http.StatusOK, utils.Response{
